@@ -1,0 +1,19 @@
+server:
+  port: 34801
+task:
+  # gitlab token
+  git-token: "you-git-token"
+  # gitlab 用户ID
+  git-user-id: "you-git-user-id"
+  # 提交日报的token
+  task-token: "you-task-token"
+  # 提交日报的url
+  task-url: "https://in.lingman.tech:6688/task-api/api/task/save"
+  # 获取当前日报的url
+  get-task-url: "https://in.lingman.tech:6688/task-api/api/task/today"
+  # 提交日报的用户ID
+  task-user-id: "you-task-id"
+  # 是否推送server酱
+  is-push: false
+  # server酱的推送url
+  push-url: "you-push-url"
