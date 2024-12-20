@@ -1,11 +1,2 @@
 server:
   port: 8088
-task:
-  git-token: "glpat-pAiNSnJr4vrnCFF4_tos"
-  git-user-id: "4"
-  task-token: "702002e2389f4052a64490220700c6fc"
-  task-url: "https://in.lingman.tech:6688/task-api/api/task/save"
-  get-task-url: "https://in.lingman.tech:6688/task-api/api/task/today"
-  task-user-id: "XuYunJie"
-  is-push: true
-  push-url: "https://sctp960tg7rsbehnngxurei5tyqgq5.push.ft07.com/send"
