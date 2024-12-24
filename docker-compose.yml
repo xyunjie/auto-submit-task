@@ -1,0 +1,15 @@
+services:
+  auto-submit:  # 服务名称
+    build: .  # 使用当前目录（包含 Dockerfile）构建镜像
+    ports:
+      - "8088:8088"  # 将容器内的 8080 端口映射到宿主机的 8080 端口
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod  # 可以通过环境变量设置 Spring Boot 的活动配置
+    networks:
+      - myapp-network  # 设置自定义网络
+
+# 定义网络
+networks:
+  myapp-network:
+    driver: bridge  # 使用桥接网络驱动（默认）
+
