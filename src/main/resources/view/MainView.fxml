@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.xyj.autosubmittask.controller.MainViewController">
+
+    <!-- 主界面内容 -->
+    <GridPane fx:id="mainPane"
+              alignment="CENTER"
+              hgap="10"
+              vgap="10"
+              style="-fx-padding: 20; -fx-background-color: #F5F5F5;">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="120"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Git Token:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="gitTokenField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Git 用户ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="gitUserIdField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="日报 Token:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="taskTokenField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="日报提交 URL:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="taskUrlField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="获取日报 URL:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="getTaskUrlField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="日报用户ID:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="taskUserIdField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="推送 Server酱:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <CheckBox fx:id="pushCheckBox" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="推送 URL:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="pushUrlField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        <Button fx:id="saveButton"
+                text="保存配置"
+                GridPane.rowIndex="8"
+                GridPane.columnIndex="0"
+                maxWidth="Infinity"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+
+        <Button fx:id="generateButton"
+                text="推送日报内容"
+                GridPane.rowIndex="8"
+                GridPane.columnIndex="1"
+                maxWidth="Infinity"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+
+    </GridPane>
+
+    <!-- 遮罩层和加载指示器 -->
+    <VBox fx:id="loadingPane"
+          alignment="CENTER"
+          spacing="10"
+          style="-fx-background-color: rgba(0,0,0,0.3);"
+          visible="false">
+        <ProgressIndicator fx:id="progressIndicator"/>
+        <Label text="加载中..." style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+    </VBox>
+</StackPane>

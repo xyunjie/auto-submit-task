@@ -6,11 +6,9 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.xyj.autosubmittask.entity.Config;
 import com.xyj.autosubmittask.entity.GitEvent;
 import com.xyj.autosubmittask.entity.Project;
-import com.xyj.autosubmittask.entity.TaskConfigEntity;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,11 +19,9 @@ import java.util.stream.Collectors;
 /**
  * @author xuyunjie
  */
-@Service
 public class AutoSubmitService {
 
-    @Resource
-    private TaskConfigEntity taskConfigEntity;
+    private Config config;
 
     private static final Map<String, String> SUBMIT_TAG_MAP = new HashMap<>();
 
@@ -41,15 +37,16 @@ public class AutoSubmitService {
         SUBMIT_TAG_MAP.put("release", "发布🍁");
     }
 
-    public void submitTask() {
+    public String submitTask(Config loadConfig) {
+        this.config = loadConfig;
         // 获取配置信息
         String format = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String url = String.format("https://git.lingman.tech:8888/api/v4/users/%s/events?after=%s&per_page=100&sort=asc", taskConfigEntity.getGitUserId(), format);
-        String body = HttpUtil.createGet(url).header("PRIVATE-TOKEN", taskConfigEntity.getGitToken()).execute().body();
+        String url = String.format("https://git.lingman.tech:8888/api/v4/users/%s/events?after=%s&per_page=100&sort=asc", config.getGitUserId(), format);
+        String body = HttpUtil.createGet(url).header("PRIVATE-TOKEN", config.getGitToken()).execute().body();
         List<GitEvent> gitEvents = JSONUtil.toList(body, GitEvent.class);
 
         if (CollUtil.isEmpty(gitEvents)) {
-            return; // 无提交记录
+            return ""; // 无提交记录
         }
 
         // 获取项目ID和项目名称映射
@@ -59,19 +56,17 @@ public class AutoSubmitService {
         // 生成日报内容
         String reportContent = generateReport(gitEvents, projectMap);
         if (StrUtil.isBlank(reportContent)) {
-            return; // 无内容生成
+            return ""; // 无内容生成
         }
-
-        // 提交日报
-        submitDailyReport(reportContent);
-        System.out.println(reportContent);
+        this.submitDailyReport(reportContent);
+        return reportContent;
     }
 
     private Map<Integer, String> fetchProjectNames(List<Integer> projectIds) {
         Map<Integer, String> projectMap = new HashMap<>();
         for (Integer projectId : projectIds) {
             String projectUrl = String.format("https://git.lingman.tech:8888/api/v4/projects/%d", projectId);
-            String projectBody = HttpUtil.createGet(projectUrl).header("PRIVATE-TOKEN", taskConfigEntity.getGitToken()).execute().body();
+            String projectBody = HttpUtil.createGet(projectUrl).header("PRIVATE-TOKEN", config.getGitToken()).execute().body();
             Project project = JSONUtil.toBean(projectBody, Project.class);
             projectMap.put(projectId, project.getName());
         }
@@ -150,24 +145,24 @@ public class AutoSubmitService {
         jsonObject.set("contentProblem", "");
         jsonObject.set("contentTommorow", "");
         jsonObject.set("day", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
-        jsonObject.set("createdBy", taskConfigEntity.getTaskUserId());
+        jsonObject.set("createdBy", config.getTaskUserId());
         jsonObject.set("createdAt", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        String taskInfo = HttpUtil.createGet(taskConfigEntity.getGetTaskUrl()).header("token", taskConfigEntity.getTaskToken()).execute().body();
+        String taskInfo = HttpUtil.createGet(config.getGetTaskUrl()).header("token", config.getTaskToken()).execute().body();
         String taskId = Optional.ofNullable(JSONUtil.parseObj(taskInfo).getJSONObject("data")).map(obj -> obj.getStr("id")).orElse("");
         jsonObject.set("id", taskId);
-        HttpResponse response = HttpUtil.createPost(taskConfigEntity.getTaskUrl()).header("token", taskConfigEntity.getTaskToken()).body(JSONUtil.toJsonStr(jsonObject)).execute();
+        HttpResponse response = HttpUtil.createPost(config.getTaskUrl()).header("token", config.getTaskToken()).body(JSONUtil.toJsonStr(jsonObject)).execute();
         handlePushNotification(response, reportContent);
     }
 
     private void handlePushNotification(HttpResponse response, String reportContent) {
-        if (taskConfigEntity.getIsPush()) {
+        if (config.isPush()) {
             JSONObject pushJson = new JSONObject();
             pushJson.set("title", response.isOk() ? "日报提交成功" : "日报提交失败");
             pushJson.set("desp", response.isOk() ? reportContent.replace("\n", "\n\n") : response.body());
             pushJson.set("tags", "日报");
             pushJson.set("short", response.isOk() ? "日报提交成功！" : "日报提交失败！");
-            HttpUtil.post(taskConfigEntity.getPushUrl(), pushJson);
+            HttpUtil.post(config.getPushUrl(), pushJson);
         }
     }
 
